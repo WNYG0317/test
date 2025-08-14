@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>TODO リスト</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: 100px auto;
+      background-color: #c7c7ee;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      /*下の方の余白*/
+    }
+
+    .todo-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    #addTaskBtn:hover {
+      background-color: aquamarine;
+    }
+
+    #taskInput {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #addTaskBtn {
+      padding: 8px 12px;
+      border: none;
+      background-color: #4caf50;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #taskList {
+      list-style: none;
+      padding: 0;
+    }
+
+    #taskList li
+
+    /*id-taskListの<li>要素に対して*/
+      {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #eeeeee;
+    }
+
+    .delete-btn {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>TODO リスト</h1>
+  <div class="todo-container">
+    <input id="taskInput" type="text" placeholder="タスクを入力">
+    <button id="addTaskBtn">追加</button>
+  </div>
+
+  <ul id="taskList"></ul>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('taskInput');
+      const addBtn = document.getElementById('addTaskBtn');
+      const list = document.getElementById('taskList');
+      const STORAGE_KEY = 'tasks';
+      let tasks = []; //再代入可能のリストtaskを宣言
+
+      // ① 保存データを読み込む
+      function loadTasks() {
+        const saved = localStorage.getItem(STORAGE_KEY); //localStorage.getItem()は()の中にkeyつまり識別子を入れる
+        tasks = saved ? JSON.parse(saved) : []; //taskの代入 savedがnullがどうかが条件式でtrueつまり存在していると前者の...
+        //保存された文字列 saved があればそれを JSON.parse で配列に変換して tasks に代入し、なければ空の配列を tasks に設定します。
+
+      }
+
+      // ② データを保存する
+      function saveTasks() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); //json化したのを保存
+      }
+
+      // ③ UI にタスクを表示する
+      function renderTasks() {
+        list.innerHTML = '';
+        tasks.forEach((task, idx) => {
+          const li = document.createElement('li');
+          li.textContent = task;
+          const delBtn = document.createElement('button');
+          delBtn.textContent = '削除';
+          delBtn.className = 'delete-btn';
+          delBtn.addEventListener('click', () => deleteTask(idx));
+
+          li.appendChild(delBtn);
+          list.appendChild(li);
+        });
+      }
+
+      // ④ タスクを追加する
+      function addTask() {
+        const text = input.value.trim();
+        if (!text) return;
+        tasks.push(text);
+        input.value = '';
+        saveTasks();
+        renderTasks();
+      }
+
+      // ⑤ タスクを削除する
+      function deleteTask(index) {
+        tasks.splice(index, 1);
+        saveTasks();
+        renderTasks();
+      }
+
+      // イベント登録
+      addBtn.addEventListener('click', addTask);
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') addTask();
+      });
+
+      // 初期化
+      loadTasks();
+      renderTasks();
+    });
+  </script>
+</body>
+
+</html>
